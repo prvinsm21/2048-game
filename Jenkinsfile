@@ -63,7 +63,7 @@ pipeline {
                         nexusUrl: '192.168.29.38:8081/', 
                         nexusVersion: 'nexus3', 
                         protocol: 'http', 
-                        repository: nexusRepo, 
+                        repository: '2048-game', 
                         version: "${readPomVersion.version}"
                 }
             }
