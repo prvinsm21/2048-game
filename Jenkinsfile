@@ -48,11 +48,38 @@ pipeline {
             }
         }
 
+        stage ('Upload jar files to nexus') {
+            steps {
+                script {
+                    def readPomVersion = readMavenPom file: 'pom.xml'
+                 //   def nexusRepo = readPomVersion.version.endsWith("SNAPSHOT") ? "cicd-proj2-snapshot" : "cicd-proj2-release"
+                    nexusArtifactUploader artifacts: [
+                        [
+                            artifactId: '2048-game', classifier: '', file: 'target/2048-game-site.jar', type: 'jar'
+                        ]
+                        ], 
+                        credentialsId: 'nexus-auth', 
+                        groupId: 'com.macko', 
+                        nexusUrl: '192.168.29.38:8081/', 
+                        nexusVersion: 'nexus3', 
+                        protocol: 'http', 
+                        repository: nexusRepo, 
+                        version: "${readPomVersion.version}"
+                }
+            }
+        }
+
         stage ('Build Docker image') {
             steps {
                 script {
                     sh 'docker build -t ${DOCKERIMAGE_NAME} .'
                 }
+            }
+        }
+
+        stage ('Trivy Image Scanning') {
+            steps {
+                sh 'trivy image ${DOCKERIMAGE_NAME} > $WORKSPACE/trivy-image-scan-$BUILD_NUMBER.txt'
             }
         }
     }
