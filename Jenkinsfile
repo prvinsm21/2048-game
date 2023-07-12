@@ -2,6 +2,8 @@ pipeline {
     agent any
     environment {
         DOCKERHUB_USERNAME = "privnsm21"
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        DOCKERIMAGE_NAME = "prvinsm21/2048-game:${BUILD_NUMBER}"
     }
 
     stages {
@@ -19,7 +21,7 @@ pipeline {
 
         stage ('Integration Testing') {
             steps {
-                sh 'mvn verify -Dskip UnitTests'
+                sh 'mvn clean verify -DskipUnitTests=true'
             }
         }
 
@@ -28,12 +30,12 @@ pipeline {
                 sh 'mvn clean install'
             }
         }
+
         stage ('Static Code analysis') {
             steps {
                 script {
                     withSonarQubeEnv(credentialsId: 'sonar-api') {
-                    sh 'mvn clean package sonar:sonar'
-                    }
+                    sh 'mvn clean package sonar:sonar'}
                 }
             }
         }
@@ -41,7 +43,7 @@ pipeline {
         stage ('Quality Gate check') {
             steps {
                 script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
+                waitForQualityGate abortPipeline: false, credentialsId: 'sonar-api'
                 }
             }
         }
