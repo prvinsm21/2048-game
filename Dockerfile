@@ -1,4 +1,4 @@
-FROM adoptopenjdk/maven-openjdk11:alpine-jre
+FROM adoptopenjdk/openjdk11:alpine-jre
 
 ARG artifact=target/2048-game-site.jar
 
